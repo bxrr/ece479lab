@@ -6,7 +6,7 @@ train_images /= 255.0
 test_images /= 255.0
 
 # load the TFLite model and allocate tensors
-interpreter = tflite.lite.Interpreter(model_path='model.tflite')
+interpreter = tflite.lite.Interpreter(model_path='fullint.tflite')
 interpreter.allocate_tensors()
 
 # get input and output tensors
