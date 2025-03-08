@@ -1,12 +1,12 @@
 import tflite_runtime.interpreter as tflite
 
-fashion_mnist = tf.keras.datasets.fashion_mnist
+fashion_mnist = tflite.keras.datasets.fashion_mnist
 (train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
 train_images /= 255.0
 test_images /= 255.0
 
 # load the TFLite model and allocate tensors
-interpreter = tf.lite.Interpreter(model_path='model.tflite')
+interpreter = tflite.lite.Interpreter(model_path='model.tflite')
 interpreter.allocate_tensors()
 
 # get input and output tensors
