@@ -2,7 +2,7 @@ import numpy as np
 import tflite_runtime.interpreter as tflite
 
 # load the TFLite model and allocate tensors
-interpreter = tflite.Interpreter(model_path='fullint.tflite')
+interpreter = tflite.Interpreter(model_path='L2P2model.tflite')
 interpreter.allocate_tensors()
 
 # get input and output tensors
