@@ -1,9 +1,8 @@
 import cv2
 import picamera
+import io
 import numpy as np
-from mtcnn.mtcnn import MTCNN
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+from mtcnn_cv2 import MTCNN
 import tflite_runtime.interpreter as tflite
 
 def capture_image():
@@ -29,12 +28,13 @@ def detect_and_crop(mtcnn, image):
     #TODO
     x,y,w,h = detection['box']
     box = image[x:x+w,y:y+h]
-    xs, ys = image.shape
-    new_x = int(xs*1.2)
-    new_y = int(ys*1.2)
-    cropped_image = np.ones(new_x, new_y)
-    cropped_image[new_x-xs, new_y-ys] = box
-    return cropped_image
+    return box
+    #xs, ys = image.shape
+    #new_x = int(xs*1.2)
+    #new_y = int(ys*1.2)
+    #cropped_image = np.ones(new_x, new_y)
+    #cropped_image[new_x-xs, new_y-ys] = box
+    #return cropped_image
 
 def show_bounding_box(image, bounding_box):
     x1, y1, w, h = bounding_box
@@ -63,7 +63,7 @@ def run_model(model, face):
     return output_data
 
 
-tfl_file = "./code/model.tflite"
+tfl_file = "./resnet.tflite"
 interpreter = tflite.Interpreter(model_path=tfl_file)
 interpreter.allocate_tensors()
 
@@ -73,10 +73,12 @@ input()
 mtcnn = MTCNN()
 image = capture_image()
 # 2. Detect and Crop
-cropped_image = detect_and_crop(MTCNN, image)
+cropped_image = detect_and_crop(mtcnn, image)
 # 3. Proprocess
 processed_image = pre_process(cropped_image)
 # 4. Run the model
+print(processed_image.shape)
+processed_image = np.resize(processed_image, (1, 160, 160, 3))
 data1 = run_model(interpreter, processed_image)
 print(data1)
 
@@ -86,10 +88,12 @@ input()
 mtcnn = MTCNN()
 image = capture_image()
 # 2. Detect and Crop
-cropped_image = detect_and_crop(MTCNN, image)
+cropped_image = detect_and_crop(mtcnn, image)
 # 3. Proprocess
 processed_image = pre_process(cropped_image)
 # 4. Run the model
+print(processed_image.shape)
+processed_image = np.resize(processed_image, (1, 160, 160, 3))
 data2 = run_model(interpreter, processed_image)
 print(data2)
 
