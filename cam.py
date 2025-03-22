@@ -24,25 +24,22 @@ def capture_image():
     return image
 
 def detect_and_crop(mtcnn, image):
-    detection = mtcnn.detect_faces(image)[0]
+    detection = mtcnn.detect_faces(image)[0]['box']
     #TODO
-    x,y,w,h = detection['box']
-    box = image[x:x+w,y:y+h]
-    return box
-    #xs, ys = image.shape
-    #new_x = int(xs*1.2)
-    #new_y = int(ys*1.2)
-    #cropped_image = np.ones(new_x, new_y)
-    #cropped_image[new_x-xs, new_y-ys] = box
-    #return cropped_image
-
+    bounding_box = detection
+    detection[0] = int(detection[0]-0.1*detection[2])
+    detection[1] = int(detection[1]-0.1*detection[3])
+    detection[2] = int(detection[2]*1.2)
+    detection[3] = int(detection[3]*1.2)
+    print(detection)
+    image = image[detection[0]:detection[0]+detection[2], detection[1]:detection[1]+detection[3]]
+    return image, bounding_box
+    
+    
 def show_bounding_box(image, bounding_box):
-    x1, y1, w, h = bounding_box
-    fig, ax = plt.subplots(1,1)
-    ax.imshow(image)
-    ax.add_patch(Rectangle((x1, y1), w, h, linewidth=1, edgecolor='r', facecolor='none'))
-    plt.show()
-    return
+    image = np.array(image)
+    cv2.rectangle(image, (bounding_box[0], bounding_box[1]), (bounding_box[0] + bounding_box[2], bounding_box[1] + bounding_box[3]), (255, 0, 0), 3)
+    return image
 
 # preprocessing function provided to the students
 def pre_process(face, required_size=(160, 160)):
@@ -72,29 +69,38 @@ input()
 # 1. Read the image
 mtcnn = MTCNN()
 image = capture_image()
+image = cv2.imread('brandon2.png')
 # 2. Detect and Crop
-cropped_image = detect_and_crop(mtcnn, image)
+cropped_image, frame = detect_and_crop(mtcnn, image)
+# cv2.imwrite("brandon2.png", image)
+# cv2.imwrite("brandon_box2.png", show_bounding_box(image, frame))
+# cv2.imwrite("brandon_crop2.png", cropped_image)
 # 3. Proprocess
 processed_image = pre_process(cropped_image)
 # 4. Run the model
 print(processed_image.shape)
 processed_image = np.resize(processed_image, (1, 160, 160, 3))
 data1 = run_model(interpreter, processed_image)
-print(data1)
 
 # process the image of the second person
-input()
 # 1. Read the image
 mtcnn = MTCNN()
-image = capture_image()
+# image = cv2.imread(
+image = cv2.imread('mateus1.png')
 # 2. Detect and Crop
-cropped_image = detect_and_crop(mtcnn, image)
+cropped_image, frame = detect_and_crop(mtcnn, image)
+# cv2.imwrite("Img2.png", show_bounding_box(image, frame))
+# cv2.imwrite("Img2crop.png", cropped_image)
 # 3. Proprocess
 processed_image = pre_process(cropped_image)
 # 4. Run the model
 print(processed_image.shape)
 processed_image = np.resize(processed_image, (1, 160, 160, 3))
 data2 = run_model(interpreter, processed_image)
-print(data2)
 
 # Do the comparison of the distance
+data1 = np.array(data1)
+data2 = np.array(data2)
+comp = np.power(data1 - data2, 2)
+dist = np.sqrt(np.sum(comp))
+print("distance:", dist)
