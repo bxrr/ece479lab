@@ -23,7 +23,7 @@ def get_scores(interpreter):
   return output_data.copy()
 
 # load the TFLite model and allocate tensors
-interpreter = tflite.Interpreter(model_path='dynamic.tflite')
+interpreter = tflite.Interpreter('L2P2model_dq.tflite')
 interpreter.allocate_tensors()
 
 # get input and output tensors
@@ -33,7 +33,7 @@ output_details = interpreter.get_output_details()
 # test the model on random input data
 input_shape = input_details[0]['shape']
 # input_data = np.array(np.random.random_sample(input_shape) * 255, dtype=np.int8)
-image = Image.open('pants_test.jpg').convert('L').resize((28,28), Image.LANCZOS)
+image = Image.open('MNIST2.png').convert('L').resize((28,28), Image.LANCZOS)
 image = np.resize(image, (input_shape))
 image = image.astype(np.float32)
 #print(image)

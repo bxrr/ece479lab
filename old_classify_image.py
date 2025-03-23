@@ -79,7 +79,7 @@ def main():
   image = Image.open(args.input).convert('L').resize(size, Image.LANCZOS)
   image = np.resize(image, (28, 28, 1))
   image = image.astype(np.int8)
-  common.set_input(interpreter, image.astype(np.int8))
+  common.set_input(interpreter, image.astype(np.uint8))
 
   # Image data must go through two transforms before running inference:
   # 1. normalization: f = (input - mean) / std
