@@ -103,21 +103,28 @@ def main():
     #normalized_input = (np.asarray(image) - mean) / (std * scale) + zero_point
     #np.clip(normalized_input, 0, 255, out=normalized_input)
     #common.set_input(interpreter, normalized_input.astype(np.uint8))
-
+  test_images = np.load('test_images.npy')
+  test_labels = np.load('test_labels.npy')  
   # Run inference
-  print('----INFERENCE TIME----')
-  print('Note: The first inference on Edge TPU is slow because it includes',
-        'loading the model into Edge TPU memory.')
-  for _ in range(args.count):
-    start = time.perf_counter()
-    interpreter.invoke()
-    inference_time = time.perf_counter() - start
-    classes = classify.get_classes(interpreter, args.top_k, args.threshold)
-    print('%.1fms' % (inference_time * 1000))
+  correct_inf = 0
 
-  print('-------RESULTS--------')
-  for c in classes:
-    print('%s: %.5f' % (labels.get(c.id, c.id), c.score))
+    # run the model
+  start = time.perf_counter()
+  start = time.perf_counter()
+  for i in range(test_images.shape[0]):
+    currimg = np.resize(test_images[i], (28, 28, 1))
+    currimg = currimg.astype(np.uint8)
+    common.set_input(interpreter, currimg)
+    interpreter.invoke()
+    output_details = interpreter.get_output_details()
+    output_data = interpreter.get_tensor(output_details[0]['index'])
+    ind = np.argmax(output_data)
+    if(ind == test_labels[i]):
+        correct_inf += 1
+  inference_time = time.perf_counter() - start
+  print('Full-integer quantization with the USB Accelerator')
+  print('Run Time: %.1fms' % (inference_time * 1000))
+  print("Accuracy: ", correct_inf/(1.0*test_images.shape[0]))
 
 
 if __name__ == '__main__':
